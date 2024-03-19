@@ -1,4 +1,4 @@
-# BachelorThesis
+# Bachelor Thesis
 GitHub repository for Truls Karlsson's bachelor thesis at Uppsala University 2024.
 
 ## Running the code
