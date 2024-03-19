@@ -4,8 +4,12 @@ GitHub repository for Truls Karlsson's bachelor thesis at Uppsala University 202
 ## Running the code
 To run the code you need to first create a virtual environment on your local machine in a suitable place. After run:
 
-python3 -m venv env
-source ./env/bin/activate
+* python3 -m venv env
 
-To load the requirements, please run: pip install -r requirements.txt
+* source ./env/bin/activate
+
+Once in the (env), you need to load the requirements, please run: 
+
+* pip install -r requirements.txt
+
 You should now be able to run the python notebooks.
