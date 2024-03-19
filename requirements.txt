@@ -1,0 +1,2 @@
+# Requirements for the virtual environment.
+# To load the requirements, please run: pip install -r requirements.txt
