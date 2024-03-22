@@ -24,7 +24,7 @@ cycler==0.12.1
 Cython==3.0.9
 debugpy==1.8.1
 decorator==5.1.1
-deepface==0.0.87
+deepface==0.0.89
 defusedxml==0.7.1
 easydict==1.13
 executing==2.0.1
@@ -149,6 +149,7 @@ tensorflow==2.16.1
 tensorflow-io-gcs-filesystem==0.36.0
 termcolor==2.4.0
 terminado==0.18.1
+tf_keras==2.16.0
 threadpoolctl==3.4.0
 tifffile==2024.2.12
 tinycss2==1.2.1
