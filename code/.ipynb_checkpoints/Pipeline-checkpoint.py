@@ -9,46 +9,27 @@ import deepface as DeepFace
 from deepface.basemodels import ArcFace
 from deepface.modules import verification
 
-# TODO
-# 1: Use "build model" instead of "load model", will make it faster when doing multiple pictures
+retinaface_model = RetinaFace.build_model()
 
-# Define image paths
-
-#main_folder_path = "own-pictures/"
-
-#image_name1 = 'testBildTruls.jpeg'
-image_name1 = 'Jennifer.png'
-
-#image_name2 = 'testBildTruls2.jpeg'
-image_name2 = 'profilKvinna1.png'
-#image_name2 = 'Bebis.jpg'
+model = ArcFace.load_model()
+model.load_weights("arcface_weights.h5")
 
 def detection(image_name: str):
-    retinaface_model = RetinaFace.build_model()
-    faces = RetinaFace.extract_faces(img_path = image_name, align = True, expand_face_area = 100, model = retinaface_model)
+    faces = RetinaFace.extract_faces(img_path = image_name, align = True, expand_face_area = 0, model = retinaface_model)
     
-    print("Detection done...")
+    #print("Detection done...")
     return faces
-    
-    #plt.figure(figsize = (10,10))
-    #plt.imshow(faces[0])
-    #plt.show()
 
 def alignment():
     # Done in detection section (for this time)
     # Might use other more complicated alignment methods later (InsightFace)
-    print("Alignment done...")
+    #print("Alignment done...")
     return 
 
 def representation(image):
-    # ArcFace (https://github.com/serengil/tensorflow-101/blob/master/python/ArcFace.ipynb)
 
     if image is None:
         return None, None
-        
-    model = ArcFace.load_model()
-
-    model.load_weights("arcface_weights.h5")
 
     try:
         image_resize = cv2.resize(image, (112, 112))
@@ -58,11 +39,12 @@ def representation(image):
     img_batch = np.expand_dims(image_resize, axis=0)
     img_representation = model.predict(img_batch)[0]
 
-    print("Representation done...")
+    #print("Representation done...")
     return img_representation, img_batch
 
 def verification(img1_representation, img1, img2_representation, img2):
     same_person = False
+    distance = 0
     
     metric = "cosine"
     #metric = "euclidean"
@@ -88,7 +70,8 @@ def verification(img1_representation, img1, img2_representation, img2):
     def findThreshold(metric):
         if metric == 'cosine':
             #return 0.6871912959056619
-            return 0.10
+            #return 0.10
+            return 0.05
         elif metric == 'euclidean':
             return 4.1591468986978075
         elif metric == 'euclidean_l2':
@@ -112,51 +95,56 @@ def verification(img1_representation, img1, img2_representation, img2):
     threshold = findThreshold(metric)
     
     if distance <= threshold:
-        print("they are same person")
+        #print("they are same person")
         same_person = True
     else:
-        print("they are different persons")
+        #print("they are different persons")
         same_person = False
     
-    print("Distance is ",round(distance, 2)," whereas as expected max threshold is ",round(threshold, 2))
+    #print("Distance is ",round(distance, 2)," whereas as expected max threshold is ",round(threshold, 2))
     
     #------------------------------
     #display
-    
+
     #fig = plt.figure()
-    
+
     #ax1 = fig.add_subplot(1,2,1)
     #plt.axis('off')
     #plt.imshow(img1[0])#[:,:,::-1])
-    
+  
     #ax2 = fig.add_subplot(1,2,2)
     #plt.axis('off')
     #plt.imshow(img2[0])#[:,:,::-1])
-    
+
     #plt.show()
 
-    return same_person
+    return same_person, distance
 
 def pipeline(image_path1, image_path2):
     # Image 1
-    print("Image 1 started successfully...")
+    #print("Image 1 started successfully...")
     faces = detection(image_path1)
     img1_representation, img1 = representation(faces[0])
 
     # Image 2
-    print("\nImage 2 started successfully...")
+    #print("\nImage 2 started successfully...")
     faces = detection(image_path2)
     img2_representation, img2 = representation(faces[0])
 
     if img1 is None or img2 is None:
-        return None, True
+        return None, True, None
     else:
-        same_person = verification(img1_representation, img1, img2_representation, img2)
-        return same_person, False
+        same_person, distance = verification(img1_representation, img1, img2_representation, img2)
+        return same_person, False, distance
     
 
 def evaluation():
     main_folder_path = "labeled_faces_in_the_wild/lfw"
+
+    first_person_counter = 0
+    person_counter = 0
+
+    total_distance = 0
 
     true_positive_count = 0
     true_negative_count = 0
@@ -164,10 +152,17 @@ def evaluation():
     false_negative_count = 0
     
     for root, dirs, files in os.walk(main_folder_path):
-        for dir_name in dirs:    
+        for dir_name in dirs:
+            if person_counter == 25: 
+                person_counter = 0
+            first_person_counter += 1
+            print("First person counter:", first_person_counter)
             person_folder_path = os.path.join(root, dir_name)
             # Loop through the images in the person's folder
             for filename in os.listdir(person_folder_path):
+                if person_counter == 25:
+                    break
+                
                 if filename.endswith(('.jpg', '.jpeg', '.png', '.bmp')):
                     image_path1 = os.path.join(person_folder_path, filename)
 
@@ -177,7 +172,14 @@ def evaluation():
                     
                     # Compare this image with images of other persons
                     for other_root, other_dirs, other_files in os.walk(main_folder_path):
+                        if person_counter == 25:
+                            break
                         for other_dir_name in other_dirs:
+                            if person_counter == 25:
+                                break
+
+                            person_counter += 1
+                            print("Second person counter:", person_counter)
                             other_person_folder_path = os.path.join(other_root, other_dir_name)
                             if person_folder_path != other_person_folder_path:
                                 for other_filename in os.listdir(other_person_folder_path):
@@ -188,10 +190,12 @@ def evaluation():
                                         if image2 is None:
                                             continue
                                             
-                                        same_person, error = pipeline(image_path1, image_path2)
+                                        same_person, error, distance = pipeline(image_path1, image_path2)
 
                                         if same_person is None:
                                             continue
+
+                                        total_distance += distance
 
                                         if same_person and not error:
                                             if dir_name == other_dir_name:
@@ -204,20 +208,27 @@ def evaluation():
                                             else:
                                                 false_negative_count += 1
 
+                                        if true_positive_count + true_negative_count + false_positive_count + false_negative_count == 5000:
+                                            avg_distance = total_distance / 5000
+                                            
+                                            print("\n%%%%%%%%%%%%%%%%%  FINAL RESULTS  %%%%%%%%%%%%%%%%%\n")
+                                            print("True Positives:", true_positive_count)
+                                            print("False Positives:", false_positive_count)
+                                            print("True Negatives:", true_negative_count)
+                                            print("False Negatives:", false_negative_count)
+                                            print("Average distance:", avg_distance)
+                                            print("Threshold used: 0.10")
+                                            print("Total comparisons: 5000")
+                                            print("\n\n")
+                                            exit()
+
                                         print("\n%%%%%%%%%%%%%%%%%  CURRENT RESULTS  %%%%%%%%%%%%%%%%%\n")
                                         print("True Positives:", true_positive_count)
                                         print("False Positives:", false_positive_count)
                                         print("True Negatives:", true_negative_count)
                                         print("False Negatives:", false_negative_count)
+                                        print("Last distance:", distance)
                                         print("\n\n")
-
-    # Print or return counts
-    print("\n%%%%%%%%%%%%%%%%%  FINAL RESULTS  %%%%%%%%%%%%%%%%%\n")
-    print("True Positives:", true_positive_count)
-    print("False Positives:", false_positive_count)
-    print("True Negatives:", true_negative_count)
-    print("False Negatives:", false_negative_count)
-    print("\n\n")
 
                                         
 
