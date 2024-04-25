@@ -4,6 +4,8 @@ os.environ["TF_USE_LEGACY_KERAS"] = "1"
 import deepface as DeepFace
 from deepface.basemodels import ArcFace
 from deepface.modules import verification
+import matplotlib.pyplot as plt
+import numpy as np
 
 ##### Pipeline imports ####
 from Detection import detection
@@ -11,7 +13,7 @@ from Alignment import alignment
 from Representation import representation
 from Verification import verification
 
-def pipeline(image_path1: str, image_path2: str) -> (bool, bool, float):
+def pipeline(image_path1: str, image_path2: str, extractor_model: str) -> (bool, bool, float):
     # Image 1
     print("\nImage 1 started...")
     faces = detection(image_path1)
@@ -19,7 +21,7 @@ def pipeline(image_path1: str, image_path2: str) -> (bool, bool, float):
         print("Detection for image 1 failed...")
         return None, True, None
         
-    img1_representation, img1 = representation(faces[0])
+    img1_representation, img1 = representation(faces[0], extractor_model)
     if img1_representation is None or img1 is None:
         print("Representation for image 1 failed...")
         return None, True, None
@@ -31,10 +33,24 @@ def pipeline(image_path1: str, image_path2: str) -> (bool, bool, float):
         print("Detection for image 2 failed...")
         return None, True, None
         
-    img2_representation, img2 = representation(faces[0])
+    img2_representation, img2 = representation(faces[0], extractor_model)
     if img2_representation is None or img2 is None:
         print("Representation for image 1 failed...")
         return None, True, None
+    
+    # Plot components of the vectors
+    #plt.figure(figsize=(10, 5))
+    #plt.scatter(range(512), img1_representation, label='Vector 1', alpha=0.5)
+    #plt.scatter(range(512), img2_representation, label='Vector 2', alpha=0.5)
+    #plt.xlabel('Dimension')
+    #plt.ylabel('Value')
+    #plt.title('Components of 512-dimensional Vectors')
+    #plt.legend()
+    #plt.show()
 
-    same_person, distance = verification(img1_representation, img1, img2_representation, img2)
+    metric = "cosine"
+    #metric = "euclidean"
+    #metric = "euclidean_l2"
+    
+    same_person, distance = verification(img1_representation, img1, img2_representation, img2, metric, extractor_model)
     return same_person, False, distance

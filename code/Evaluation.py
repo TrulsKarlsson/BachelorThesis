@@ -6,7 +6,10 @@ from PipelineMain import pipeline
 
 def evaluation():
     main_folder_path = "labeled_faces_in_the_wild/lfw"
+    #main_folder_path = "evaluationOwnPictures"
 
+    bush_counter = 0
+    
     first_person_counter = 0
     person_counter = 0
 
@@ -23,6 +26,10 @@ def evaluation():
                 person_counter = 0
             first_person_counter += 1
             print("First person counter:", first_person_counter)
+            if bush_counter == 0:
+                dir_name = "__George_W_Bush"
+                bush_counter += 1
+            
             person_folder_path = os.path.join(root, dir_name)
             # Loop through the images in the person's folder
             for filename in os.listdir(person_folder_path):
@@ -47,8 +54,15 @@ def evaluation():
 
                             person_counter += 1
                             print("Second person counter:", person_counter)
+
+                            print("Bush counter:", bush_counter)
+
+                            if bush_counter == 1:
+                                other_dir_name = "__George_W_Bush"
+                                bush_counter += 1
+                                print("Bush counter:", bush_counter)
                             other_person_folder_path = os.path.join(other_root, other_dir_name)
-                            if person_folder_path != other_person_folder_path:
+                            if person_folder_path != other_person_folder_path or person_folder_path == other_person_folder_path:
                                 for other_filename in os.listdir(other_person_folder_path):
                                     if other_filename.endswith(('.jpg', '.jpeg', '.png', '.bmp')):
                                         image_path2 = os.path.join(other_person_folder_path, other_filename)
@@ -56,8 +70,10 @@ def evaluation():
                                         image2 = cv2.imread(image_path2)
                                         if image2 is None:
                                             continue
-                                            
-                                        same_person, error, distance = pipeline(image_path1, image_path2)
+
+                                        #extractor_model = "ArcFace"
+                                        extractor_model = "AdaFace"
+                                        same_person, error, distance = pipeline(image_path1, image_path2, extractor_model)
 
                                         if same_person is None:
                                             continue
@@ -75,7 +91,7 @@ def evaluation():
                                             else:
                                                 false_negative_count += 1
 
-                                        if true_positive_count + true_negative_count + false_positive_count + false_negative_count == 1:
+                                        if true_positive_count + true_negative_count + false_positive_count + false_negative_count == 5000:
                                             avg_distance = total_distance / 5000
 
                                             os.system("clear")
@@ -85,7 +101,7 @@ def evaluation():
                                             print("True Negatives:", true_negative_count)
                                             print("False Negatives:", false_negative_count)
                                             print("Average distance:", avg_distance)
-                                            print("Threshold used: 0.10")
+                                            print("Threshold used: 0.0454")
                                             print("Total comparisons: 5000")
                                             print("\n\n")
                                             exit()

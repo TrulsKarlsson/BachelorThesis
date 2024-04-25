@@ -18,34 +18,41 @@ def findEuclideanDistance(source_representation, test_representation):
     return euclidean_distance
 
 # TODO: Change in future
-def findThreshold(metric): 
-        if metric == 'cosine':
-            #return 0.10
-            return 0.04
-        elif metric == 'euclidean':
-            return 4.1591468986978075
-        elif metric == 'euclidean_l2':
-            return 1.1315718048269017
+def findThreshold(metric: str, extractor_model: str): 
+        if extractor_model == "ArcFace":
+            if metric == 'cosine':
+                #return 0.0884 # sigma 2
+                return 0.0669 # sigma 1
+                #return 0.0454 # sigma 0
+            elif metric == 'euclidean':
+                return 0
+            elif metric == 'euclidean_l2':
+                return 0
+        elif extractor_model == "AdaFace":
+            if metric == 'cosine':
+                return 0 # sigma 2
+                #return 0 # sigma 1
+                #return 0 # sigma 0
+            elif metric == 'euclidean':
+                return 0
+            elif metric == 'euclidean_l2':
+                return 0
 
-def verification(img1_representation, img1, img2_representation, img2):
+def verification(img1_vec, img1, img2_vec, img2, metric, extractor_model) -> (bool, float):
     same_person = False
     distance = 0
     
-    metric = "cosine"
-    #metric = "euclidean"
-    #metric = "euclidean_l2"
-    
     if metric == 'cosine':
-        distance = findCosineDistance(img1_representation, img2_representation)
+        distance = findCosineDistance(img1_vec, img2_vec)
     elif metric == 'euclidean':
-        distance = findEuclideanDistance(img1_representation, img2_representation)
+        distance = findEuclideanDistance(img1_vec, img2_vec)
     elif metric == 'euclidean_l2':
-        distance = findEuclideanDistance(l2_normalize(img1_representation), l2_normalize(img2_representation))
+        distance = findEuclideanDistance(l2_normalize(img1_vec), l2_normalize(img2_vec))
     
     #------------------------------
     #verification
     
-    threshold = findThreshold(metric)
+    threshold = findThreshold(metric, extractor_model)
     
     if distance <= threshold:
         #print("they are same person")
@@ -60,15 +67,15 @@ def verification(img1_representation, img1, img2_representation, img2):
     #display
     
     #fig = plt.figure()
-    
+#
     #ax1 = fig.add_subplot(1,2,1)
     #plt.axis('off')
     #plt.imshow(img1[0])#[:,:,::-1])
-    
+#
     #ax2 = fig.add_subplot(1,2,2)
     #plt.axis('off')
     #plt.imshow(img2[0])#[:,:,::-1])
-    
+#
     #plt.show()
 
     print("\nVerification done...")
