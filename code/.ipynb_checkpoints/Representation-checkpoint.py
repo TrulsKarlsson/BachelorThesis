@@ -7,6 +7,7 @@ from deepface.basemodels import ArcFace
 # AdaFace
 from AdaFace.face_alignment import align
 from AdaFace import inference
+import torch
 
 arcface_model = ArcFace.load_model()
 arcface_model.load_weights("arcface_weights.h5")
@@ -14,22 +15,15 @@ arcface_model.load_weights("arcface_weights.h5")
 adaface_model = inference.load_pretrained_model('ir_50')
 
 def ada(image):
-    #path = 'own-pictures/testBildTruls.jpeg'
-    path = 'AdaFace/face_alignment/test_images/img1.jpeg'
-
-    img = cv2.imread(path)
-    plt.imshow(img[:, : , ::-1])
-    plt.show()
+    bgr_input = inference.to_input(image)
     
-    aligned_rgb_img = align.get_aligned_face(path)
+    try:
+        bgr_input = torch.nn.functional.interpolate(bgr_input, size=(112, 112), mode='bilinear', align_corners=False)
+    except:
+        return None, None
     
-    if aligned_rgb_img is None:
-        print("aligned_rgb_img is NoneType")
-    
-    # Actual AdaFace (only rgd to bgr first)
-    bgr_input = inference.to_input(aligned_rgb_img)
     feature, _ = adaface_model(bgr_input)
-
+                        
     print("Representation done...")
     return feature.tolist()[0], image
 
@@ -45,8 +39,8 @@ def arc(image):
     print("Representation done...")
     return img_representation, img
 
-def representation(image, model: str):
-    if model == "ArcFace":
+def representation(image, extractor_model: str):
+    if extractor_model == "ArcFace":
         return arc(image)
-    elif model == "AdaFace":
+    elif extractor_model == "AdaFace":
         return ada(image)

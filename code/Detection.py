@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 retinaface_model = RetinaFace.build_model()
 
 def detection(image_path: str) -> list:
-    faces = RetinaFace.extract_faces(img_path = image_path, align = False, expand_face_area = 0, model = retinaface_model)
-    
+    faces = RetinaFace.extract_faces(img_path = image_path, align = True, expand_face_area = 0, model = retinaface_model)
+
+    print("Detection done...")
     return faces
