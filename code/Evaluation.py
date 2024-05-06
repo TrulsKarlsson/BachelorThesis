@@ -2,13 +2,11 @@ import cv2
 import os
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
-from PipelineMain import pipeline
-
-def evaluation():
-    # lfw import som sefik gjorde här
+from PipelineMain import pipeline  
 
 def evaluationOld():
     main_folder_path = "labeled_faces_in_the_wild/lfw"
+    #main_folder_path = "lfwPairs/lfw_home/lfw_funneled"
     #main_folder_path = "evaluationOwnPictures"
 
     #run_cycles = 1060

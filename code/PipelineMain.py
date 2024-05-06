@@ -17,7 +17,7 @@ def pipeline(image_path1: str, image_path2: str, extractor_model: str) -> (bool,
     # Image 1
     print("\nImage 1 started...")
     faces = detection(image_path1)
-    if faces is None:
+    if faces is None or len(faces) == 0:
         print("Detection for image 1 failed...")
         return None, True, None
         
@@ -29,7 +29,7 @@ def pipeline(image_path1: str, image_path2: str, extractor_model: str) -> (bool,
     # Image 2
     print("\nImage 2 started...")
     faces = detection(image_path2)
-    if faces is None:
+    if faces is None or len(faces) == 0:
         print("Detection for image 2 failed...")
         return None, True, None
         
@@ -37,16 +37,6 @@ def pipeline(image_path1: str, image_path2: str, extractor_model: str) -> (bool,
     if img2_representation is None or img2 is None:
         print("Representation for image 1 failed...")
         return None, True, None
-    
-    # Plot components of the vectors
-    #plt.figure(figsize=(10, 5))
-    #plt.scatter(range(512), img1_representation, label='Vector 1', alpha=0.5)
-    #plt.scatter(range(512), img2_representation, label='Vector 2', alpha=0.5)
-    #plt.xlabel('Dimension')
-    #plt.ylabel('Value')
-    #plt.title('Components of 512-dimensional Vectors')
-    #plt.legend()
-    #plt.show()
 
     metric = "cosine"
     #metric = "euclidean"

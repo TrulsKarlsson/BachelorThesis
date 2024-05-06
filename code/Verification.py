@@ -33,7 +33,19 @@ def findThreshold(metric: str, extractor_model: str):
                 #return 0.412 # sigma 0
                 #return 0.5385 # sigma 1
                 #return 0.665 # sigma 2
-                return 0.8124 # sigma 3
+                #return 0.8124 # sigma 3
+                return 0.7223 # Binary tree classifier
+            elif metric == 'euclidean':
+                return 0
+            elif metric == 'euclidean_l2':
+                return 0
+        elif extractor_model == "MagFace":
+            if metric == 'cosine':
+                #return 0.412 # sigma 0
+                #return 0.5385 # sigma 1
+                #return 0.665 # sigma 2
+                #return 0.8124 # sigma 3
+                return 0.7223 # Binary tree classifier
             elif metric == 'euclidean':
                 return 0
             elif metric == 'euclidean_l2':

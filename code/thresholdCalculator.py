@@ -67,5 +67,5 @@ def thresholdCalculator(extractor_model: str):
     print("\n\n")
 
 if __name__ == "__main__":
-    extractor_model = "AdaFace"
+    extractor_model = "ArcFace"
     thresholdCalculator(extractor_model)
