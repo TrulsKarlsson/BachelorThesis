@@ -13,7 +13,7 @@ from Alignment import alignment
 from Representation import representation
 from Verification import verification
 
-def pipeline(image_path1: str, image_path2: str, extractor_model: str) -> (bool, bool, float):
+def pipeline(image_path1: str, image_path2: str, metric: str, extractor_model: str) -> (bool, bool, float):
     # Image 1
     print("\nImage 1 started...")
     faces = detection(image_path1)
@@ -37,10 +37,6 @@ def pipeline(image_path1: str, image_path2: str, extractor_model: str) -> (bool,
     if img2_representation is None or img2 is None:
         print("Representation for image 1 failed...")
         return None, True, None
-
-    metric = "cosine"
-    #metric = "euclidean"
-    #metric = "euclidean_l2"
     
     same_person, distance = verification(img1_representation, img1, img2_representation, img2, metric, extractor_model)
     return same_person, False, distance

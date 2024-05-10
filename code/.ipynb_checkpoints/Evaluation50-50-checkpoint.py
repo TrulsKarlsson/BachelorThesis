@@ -3,11 +3,12 @@ import os
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
 from PipelineMain import pipeline  
+from Verification import findThreshold
 
-def evaluationOld(extractor_model: str, run_cycles: int):
+def evaluationOld(metric: str, extractor_model: str, run_cycles: int, threshold):
     main_folder_path = "labeled_faces_in_the_wild/lfw"
 
-    # Run cycles determine the total comparisons (50/50 split between intra- and intersimilarities)
+    # Run cycles: the total comparisons (50/50 split between intra- and intersimilarities)
     
     same_person_counter = 0
     different_person_counter = 0
@@ -58,7 +59,7 @@ def evaluationOld(extractor_model: str, run_cycles: int):
                                         F1_score  = (2 * precision * recall)/(precision + recall)
                                         os.system("clear")
                                         print("\n%%%%%%%%%%%%%%%%%  FINAL RESULTS   %%%%%%%%%%%%%%%%%\n")
-                                        print("Statistics (align == True)")
+                                        print("Statistics")
                                         print("True Positives:", TP)
                                         print("False Positives:", FP)
                                         print("True Negatives:", TN)
@@ -73,7 +74,8 @@ def evaluationOld(extractor_model: str, run_cycles: int):
                                         
                                         print("\nSpecifications")
                                         print("Extractor model:", extractor_model)
-                                        print("Threshold used: 0.7223 (Binary tree classifier)")
+                                        print("Distance formula:", metric)
+                                        print("Threshold used:", threshold)
                                         print("Total comparisons:", run_cycles)
                                         print("Intrasimilar comparisons:", run_cycles/2)
                                         print("Intersimilar comparisons:", run_cycles/2)
@@ -86,7 +88,7 @@ def evaluationOld(extractor_model: str, run_cycles: int):
                                     elif person_folder_path == other_person_folder_path:
                                         same_person_counter += 1
                                         
-                                    same_person, error, distance = pipeline(image_path1, image_path2, extractor_model)
+                                    same_person, error, distance = pipeline(image_path1, image_path2, metric, extractor_model)
                                     if same_person is None:
                                         continue
                                     total_distance += distance
@@ -104,7 +106,9 @@ def evaluationOld(extractor_model: str, run_cycles: int):
                                         
                                     os.system("clear")
                                     print("\n%%%%%%%%%%%%%%%%%  CURRENT RESULTS  %%%%%%%%%%%%%%%%%\n")
+                                    print("Distance formula:", metric)
                                     print("Model:", extractor_model)
+                                    print("Threshold:", threshold)
                                     print("True Positives:", TP)
                                     print("False Positives:", FP)
                                     print("True Negatives:", TN)
@@ -120,8 +124,15 @@ if __name__ == "__main__":
     #extractor_model = "ArcFace"
     #extractor_model = "AdaFace"
     extractor_model = "MagFace"
+
+    metric = "cosine"
+    #metric = "euclidean"
+    #metric = "euclidean_l2"
+
+    threshold = findThreshold(metric, extractor_model)
+    
     run_cycles = 1000
-    evaluationOld(extractor_model, run_cycles)
+    evaluationOld(metric, extractor_model, run_cycles, threshold)
 
 # Evaluation
 # Kör olika thresholds t.ex (0.1)
