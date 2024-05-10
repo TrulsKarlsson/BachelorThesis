@@ -21,11 +21,11 @@ def findEuclideanDistance(source_representation, test_representation):
 def findThreshold(metric: str, extractor_model: str): 
         if extractor_model == "ArcFace":
             if metric == 'cosine':
-                #return 0.0403 # Threshold value (sigma = 0): 
-                #return 0.0591 # Threshold value (sigma = 1): 
-                return 0.0779 # Threshold value (sigma = 2): 
-                #return 0.0967 # Threshold value (sigma = 3): 
-                #return 0.0452 # Threshold value decided by the decision tree: 
+                #return 0.3985 # sigma 0
+                return 0.5569 # sigma 1
+                #return 0.7153 # sigma 2
+                #return 0.8737 # sigma 3
+                #return 0.6879 # Binary tree classifier
             elif metric == 'euclidean':
                 return 0
             elif metric == 'euclidean_l2':

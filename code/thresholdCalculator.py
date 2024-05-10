@@ -81,6 +81,6 @@ def thresholdCalculator(metric: str, extractor_model: str):
     print("\n\n")
 
 if __name__ == "__main__":
-    extractor_model = "MagFace"
+    extractor_model = "ArcFace"
     metric = "cosine"
     thresholdCalculator(metric, extractor_model)

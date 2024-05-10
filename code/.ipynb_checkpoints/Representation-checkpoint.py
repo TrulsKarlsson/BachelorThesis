@@ -1,16 +1,21 @@
+import sys
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 # ArcFace
 import deepface as DeepFace
 from deepface.basemodels import ArcFace
+
+sys.path.append('/Users/trulskarlsson/Exjobb/BachelorThesis/code/insightface')
+from recognition.arcface_torch import inference
+from recognition.arcface_torch.backbones import get_model
+import h5py
 # AdaFace
 from AdaFace.face_alignment import align
 from AdaFace import inference
 import torch
 # MagFace
 import os
-import sys
 sys.path.append('/Users/trulskarlsson/Exjobb/BachelorThesis/code/MagFace')
 from inference.network_inf import builder_inf
 import argparse
@@ -34,6 +39,13 @@ import time
 import pprint
 import os
 
+# ArcFace NEW
+parser = argparse.ArgumentParser(description='PyTorch ArcFace Training')
+parser.add_argument('--network', type=str, default='r50', help='backbone network')
+parser.add_argument('--weight', type=str, default='')
+parser.add_argument('--img', type=str, default=None)
+args = parser.parse_args()
+#arcface_model = 
 
 # ArcFace
 arcface_model = ArcFace.load_model()
@@ -110,15 +122,22 @@ def ada(image):
 
 def arc(image):
     try:
-        image_resize = cv2.resize(image, (112, 112))
+        img = cv2.resize(image, (112, 112))
     except:
         return None, None
 
-    img = np.expand_dims(image_resize, axis=0)
-    img_representation = arcface_model.predict(img)[0]
-
-    print("Representation done...")
-    return img_representation, img
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = np.transpose(img, (2, 0, 1))
+    img = torch.from_numpy(img).unsqueeze(0).float()
+    img.div_(255).sub_(0.5).div_(0.5)
+    net = get_model('r50', fp16=False)
+    #"arcface_weights.h5"
+    #net.load_state_dict(torch.load('backbone.pth'))
+    net.load_state_dict(torch.load('backbone.pth', map_location=torch.device('cpu')))
+    net.eval()
+    #feat = net(img).numpy()
+    feat = net(img).detach().numpy()
+    return feat[0], image
 
 def representation(image, extractor_model: str) -> list:
     if extractor_model == "ArcFace":

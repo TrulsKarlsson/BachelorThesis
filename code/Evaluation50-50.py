@@ -121,9 +121,9 @@ def evaluationOld(metric: str, extractor_model: str, run_cycles: int, threshold)
                                         
 
 if __name__ == "__main__":
-    #extractor_model = "ArcFace"
+    extractor_model = "ArcFace"
     #extractor_model = "AdaFace"
-    extractor_model = "MagFace"
+    #extractor_model = "MagFace"
 
     metric = "cosine"
     #metric = "euclidean"
