@@ -15,13 +15,12 @@ def thresholdCalculator(metric: str, extractor_model: str):
     for pair in instances:
         image1_path, image2_path = pair
         
-        # Call the pipeline function with the current pair of image paths
+
         image_path1 = "thresholdImages/" + image1_path
         image_path2 = "thresholdImages/" + image2_path
         
         result = pipeline(image_path1, image_path2, metric, extractor_model)
         
-        # Append the return values to the results list
         results.append(result)
 
     distances = []
@@ -33,21 +32,16 @@ def thresholdCalculator(metric: str, extractor_model: str):
 
     df[df.Decision == 'Yes'].distance.plot.kde(color='blue', label='Intra')
     
-    # Plot KDE for 'No' class with red color
     df[df.Decision == 'No'].distance.plot.kde(color='red', label='Inter')
     
-    # Add legend to the plot
     plt.legend()
     
-    # Add labels and title
     plt.xlabel('Similarity')
     plt.ylabel('Density')
     plt.title("KDE Plot of Distances for 'Intra' and 'Inter' Classes")
     
-    # Show the plot
     plt.show()
 
-    # Statistical approach
     tp_mean = round(df[df.Decision == "Yes"]["distance"].mean(), 4)
     tp_std = round(df[df.Decision == "Yes"]["distance"].std(), 4)
     fp_mean = round(df[df.Decision == "No"]["distance"].mean(), 4)
@@ -59,12 +53,9 @@ def thresholdCalculator(metric: str, extractor_model: str):
     threshold_sigma2 = round(tp_mean + 2 * tp_std, 4)
     threshold_sigma3 = round(tp_mean + 3 * tp_std, 4)
     
-    # Assuming you have your DataFrame named df
-    # Split the data into features (distance) and target (Decision)
     X = df[['distance']]
     y = df['Decision']
     
-    # Output the threshold value decided by the decision tree
     clf = DecisionTreeClassifier(random_state=42)
     clf.fit(X, y)
     threshold = clf.tree_.threshold[0]
@@ -81,6 +72,6 @@ def thresholdCalculator(metric: str, extractor_model: str):
     print("\n\n")
 
 if __name__ == "__main__":
-    extractor_model = "ArcFace"
+    extractor_model = "MagFace"
     metric = "cosine"
     thresholdCalculator(metric, extractor_model)

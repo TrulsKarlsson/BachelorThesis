@@ -45,7 +45,6 @@ parser.add_argument('--network', type=str, default='r50', help='backbone network
 parser.add_argument('--weight', type=str, default='')
 parser.add_argument('--img', type=str, default=None)
 args = parser.parse_args()
-#arcface_model = 
 
 # ArcFace
 arcface_model = ArcFace.load_model()
@@ -67,7 +66,6 @@ parser.add_argument('-p', '--print-freq', default=100, type=int,
                     metavar='N', help='print frequency (default: 10)')
 parser.add_argument('--cpu-mode', default="True", action='store_true', help='Use the CPU.')
 
-# Parse the argument
 args = parser.parse_args()
 model = builder_inf(args)
 model = torch.nn.DataParallel(model)
@@ -87,22 +85,14 @@ def mag(image):
     except:
         return None, None
 
-    # Switch to evaluation mode
     model.eval()
 
-    # Convert the image to tensor and add a batch dimension
     image_tensor = trans(image_resize.copy())
     image_tensor = torch.unsqueeze(image_tensor, 0)
 
-    # Perform inference
     with torch.no_grad():
-        # Pass the tensor through the model
         embedding_feat = model(image_tensor)
-
-        # Normalize the features
         embedding_feat = torch.nn.functional.normalize(embedding_feat, p=2, dim=1)
-
-        # Extract numpy array from tensor
         _feat = embedding_feat.squeeze().cpu().numpy()
 
     return _feat, image
@@ -131,12 +121,12 @@ def arc(image):
     img = torch.from_numpy(img).unsqueeze(0).float()
     img.div_(255).sub_(0.5).div_(0.5)
     net = get_model('r50', fp16=False)
-    #"arcface_weights.h5"
-    #net.load_state_dict(torch.load('backbone.pth'))
     net.load_state_dict(torch.load('backbone.pth', map_location=torch.device('cpu')))
     net.eval()
-    #feat = net(img).numpy()
     feat = net(img).detach().numpy()
+    print(feat[0])
+    plt.imshow(image)
+    plt.show()
     return feat[0], image
 
 def representation(image, extractor_model: str) -> list:

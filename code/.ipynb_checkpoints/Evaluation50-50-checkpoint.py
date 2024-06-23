@@ -5,8 +5,9 @@ os.environ["TF_USE_LEGACY_KERAS"] = "1"
 from PipelineMain import pipeline  
 from Verification import findThreshold
 
-def evaluationOld(metric: str, extractor_model: str, run_cycles: int, threshold):
-    main_folder_path = "labeled_faces_in_the_wild/lfw"
+def evaluationOld(metric: str, extractor_model: str, run_cycles: int, dataset_path):
+    main_folder_path = dataset_path
+    threshold = findThreshold(metric, extractor_model)
 
     # Run cycles: the total comparisons (50/50 split between intra- and intersimilarities)
     
@@ -73,6 +74,7 @@ def evaluationOld(metric: str, extractor_model: str, run_cycles: int, threshold)
                                         print("F1-score:", F1_score)
                                         
                                         print("\nSpecifications")
+                                        print("Dataset path:", dataset_path)
                                         print("Extractor model:", extractor_model)
                                         print("Distance formula:", metric)
                                         print("Threshold used:", threshold)
@@ -107,6 +109,7 @@ def evaluationOld(metric: str, extractor_model: str, run_cycles: int, threshold)
                                     os.system("clear")
                                     print("\n%%%%%%%%%%%%%%%%%  CURRENT RESULTS  %%%%%%%%%%%%%%%%%\n")
                                     print("Distance formula:", metric)
+                                    print("Dataset path:", dataset_path)
                                     print("Model:", extractor_model)
                                     print("Threshold:", threshold)
                                     print("True Positives:", TP)
@@ -129,10 +132,12 @@ if __name__ == "__main__":
     #metric = "euclidean"
     #metric = "euclidean_l2"
 
-    threshold = findThreshold(metric, extractor_model)
+    #dataset_path = "labeled_faces_in_the_wild/lfw"
+    dataset_path = "SFPI"
     
-    run_cycles = 1000
-    evaluationOld(metric, extractor_model, run_cycles, threshold)
+    #run_cycles = 1000
+    run_cycles = 80
+    evaluationOld(metric, extractor_model, run_cycles, dataset_path)
 
 # Evaluation
 # Kör olika thresholds t.ex (0.1)
